@@ -1,0 +1,12 @@
+database:
+  dsn: "postgres://postgres:bububu@localhost:5432/nir"
+
+ids:
+  teacher: 3
+  student: 4
+  my: 758
+
+server:
+  port: 8081
+
+

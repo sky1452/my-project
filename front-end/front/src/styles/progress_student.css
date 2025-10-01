@@ -1,0 +1,91 @@
+.progress_s {
+  font-family: Arial;
+  font-size: 20px;
+  width: 100%;
+  max-width: 1500px;
+  height: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: -9px auto 30px auto;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Таблица 1 */
+.students-table1 {
+  margin-top: 3px;
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* фиксированная раскладка */
+}
+
+.students-table1 th,
+.students-table1 td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+/* Узкая колонка для № */
+.students-table1 th:nth-child(1),
+.students-table1 td:nth-child(1) {
+  width: 40px;
+}
+
+/* Ширина по дисциплине — авто */
+.students-table1 th:nth-child(2),
+.students-table1 td:nth-child(2) {
+  width: auto;
+  text-align: left;
+  padding-left: 8px;
+}
+
+/* Остальные колонки (1-й модуль – Итого) одинаковые */
+.students-table1 th:nth-child(n+3),
+.students-table1 td:nth-child(n+3) {
+  width: calc((100% - 40px - 200px) / 5);
+}
+
+/* Заголовки таблицы 1 */
+.students-table1 th {
+  background-color: #f5f5f5;
+}
+
+/* Таблица 2 */
+.students-table2 {
+  margin-top: 3px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.students-table2 th,
+.students-table2 td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+  word-wrap: break-word;
+  white-space: normal;
+  max-width: 150px;
+}
+
+/* Заголовки таблицы 2 */
+.students-table2 th {
+  background-color: #f5f5f5;
+}
+
+/* Для 2, 3, 4 колонок — равная ширина */
+.students-table2 th:nth-child(2),
+.students-table2 th:nth-child(3),
+.students-table2 th:nth-child(4),
+.students-table2 td:nth-child(2),
+.students-table2 td:nth-child(3),
+.students-table2 td:nth-child(4) {
+  width: 33.33%;
+}

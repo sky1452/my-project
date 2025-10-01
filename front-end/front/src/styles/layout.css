@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+ background: linear-gradient(to bottom, #dcdcdc, white);
+}
+
+.app-layout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background-color: #F5F5F5;
+  padding: 20px 10px;
+  border-right: 1px solid #ccc;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+  overflow-y: auto;
+}

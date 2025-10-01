@@ -1,0 +1,319 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Приложение для автоматизации учебных процессов",
+        "title": "Univer",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8081",
+    "paths": {
+        "/myPara": {
+            "get": {
+                "description": "Возвращает текущую пару",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Para"
+                ],
+                "summary": "Определить текущую пару",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Para"
+                        }
+                    },
+                    "404": {
+                        "description": "Текущей пары не найдено",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/mySchedule/{id}": {
+            "get": {
+                "description": "Возвращает массив занятий (пар) указанного пользователя (по ID) или группы (по названию)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Para"
+                ],
+                "summary": "Получение списка пар",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID пользователя или название группы",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список занятий",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Para"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Группа не найдена",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при получении расписания",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/myTodayParas/{id}": {
+            "get": {
+                "description": "Возвращает массив занятий (пар) на текущий день для указанного пользователя (по ID) или группы (по названию)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Para"
+                ],
+                "summary": "Получение списка пар на сегодня",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID пользователя или название группы",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список занятий на сегодня",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Para"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Группа не найдена",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при получении расписания",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/paraNum": {
+            "get": {
+                "description": "Возвращает номер текущей пары или сообщает, что сейчас перемена",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Para"
+                ],
+                "summary": "Определить номер текущей пары",
+                "responses": {
+                    "200": {
+                        "description": "Номер пары (1-6) или 'Перемена'",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при определении номера пары",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/teachers": {
+            "post": {
+                "description": "Принимает JSON-данные о преподавателе и добавляет его в базу данных",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Преподаватели"
+                ],
+                "summary": "Добавление преподавателя",
+                "parameters": [
+                    {
+                        "description": "Данные преподавателя",
+                        "name": "teacher",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AddTeacherRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Преподаватель успешно добавлен",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка чтения тела запроса или декодирования данных",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при добавлении преподавателя",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.AddTeacherRequest": {
+            "description": "описывает входные данные для добавления преподавателя",
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "ivan.ivanov@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Иван Иванов"
+                },
+                "properties": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                }
+            }
+        },
+        "models.Para": {
+            "description": "Модель для пары",
+            "type": "object",
+            "properties": {
+                "cabinetIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "cabinetNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "dayOfWeek": {
+                    "type": "integer"
+                },
+                "divisionIntoGroups": {
+                    "type": "string"
+                },
+                "divisionIntoWeek": {
+                    "type": "string"
+                },
+                "groupId": {
+                    "type": "integer"
+                },
+                "groupName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "labId": {
+                    "type": "string"
+                },
+                "labName": {
+                    "type": "string"
+                },
+                "lectureId": {
+                    "type": "string"
+                },
+                "lectureName": {
+                    "type": "string"
+                },
+                "paraNum": {
+                    "type": "integer"
+                },
+                "paraWeekType": {
+                    "type": "string"
+                },
+                "practicId": {
+                    "type": "string"
+                },
+                "practicName": {
+                    "type": "string"
+                },
+                "semesterId": {
+                    "type": "integer"
+                },
+                "teacherIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "teacherNames": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

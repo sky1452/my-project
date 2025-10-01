@@ -1,0 +1,213 @@
+definitions:
+  models.AddTeacherRequest:
+    description: описывает входные данные для добавления преподавателя
+    properties:
+      email:
+        example: ivan.ivanov@example.com
+        type: string
+      name:
+        example: Иван Иванов
+        type: string
+      properties:
+        items:
+          type: object
+        type: array
+    type: object
+  models.Para:
+    description: Модель для пары
+    properties:
+      cabinetIds:
+        items:
+          type: integer
+        type: array
+      cabinetNames:
+        items:
+          type: string
+        type: array
+      dayOfWeek:
+        type: integer
+      divisionIntoGroups:
+        type: string
+      divisionIntoWeek:
+        type: string
+      groupId:
+        type: integer
+      groupName:
+        type: string
+      id:
+        type: integer
+      labId:
+        type: string
+      labName:
+        type: string
+      lectureId:
+        type: string
+      lectureName:
+        type: string
+      paraNum:
+        type: integer
+      paraWeekType:
+        type: string
+      practicId:
+        type: string
+      practicName:
+        type: string
+      semesterId:
+        type: integer
+      teacherIds:
+        items:
+          type: integer
+        type: array
+      teacherNames:
+        items:
+          type: string
+        type: array
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: Приложение для автоматизации учебных процессов
+  title: Univer
+  version: "1.0"
+paths:
+  /myPara:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает текущую пару
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Para'
+        "404":
+          description: Текущей пары не найдено
+          schema:
+            type: string
+      summary: Определить текущую пару
+      tags:
+      - Para
+  /mySchedule/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает массив занятий (пар) указанного пользователя (по ID)
+        или группы (по названию)
+      parameters:
+      - description: ID пользователя или название группы
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список занятий
+          schema:
+            items:
+              $ref: '#/definitions/models.Para'
+            type: array
+        "400":
+          description: Некорректный запрос
+          schema:
+            type: string
+        "404":
+          description: Группа не найдена
+          schema:
+            type: string
+        "500":
+          description: Ошибка при получении расписания
+          schema:
+            type: string
+      summary: Получение списка пар
+      tags:
+      - Para
+  /myTodayParas/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает массив занятий (пар) на текущий день для указанного
+        пользователя (по ID) или группы (по названию)
+      parameters:
+      - description: ID пользователя или название группы
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список занятий на сегодня
+          schema:
+            items:
+              $ref: '#/definitions/models.Para'
+            type: array
+        "400":
+          description: Некорректный запрос
+          schema:
+            type: string
+        "404":
+          description: Группа не найдена
+          schema:
+            type: string
+        "500":
+          description: Ошибка при получении расписания
+          schema:
+            type: string
+      summary: Получение списка пар на сегодня
+      tags:
+      - Para
+  /paraNum:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает номер текущей пары или сообщает, что сейчас перемена
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Номер пары (1-6) или 'Перемена'
+          schema:
+            type: integer
+        "500":
+          description: Ошибка при определении номера пары
+          schema:
+            type: string
+      summary: Определить номер текущей пары
+      tags:
+      - Para
+  /teachers:
+    post:
+      consumes:
+      - application/json
+      description: Принимает JSON-данные о преподавателе и добавляет его в базу данных
+      parameters:
+      - description: Данные преподавателя
+        in: body
+        name: teacher
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Преподаватель успешно добавлен
+          schema:
+            type: string
+        "400":
+          description: Ошибка чтения тела запроса или декодирования данных
+          schema:
+            type: string
+        "500":
+          description: Ошибка при добавлении преподавателя
+          schema:
+            type: string
+      summary: Добавление преподавателя
+      tags:
+      - Преподаватели
+swagger: "2.0"

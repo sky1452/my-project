@@ -1,0 +1,109 @@
+.profilt {
+  font-family: Arial;
+    font-size: 20px;
+    font-family: Arial;
+    width: 100%;
+    max-width: 1500px;
+    height: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    display: flex;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: -9px 30px 30px 30px; 
+    box-sizing: border-box;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  
+}
+
+.data-table td {
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  border-left: none;
+  border-right: none;
+  padding: 12px;
+  font-size: 20px;
+  
+}
+
+.data-table tr{
+  border-top: none;
+  border-bottom: 1px solid #ccc;
+  border-left: none;
+  border-right: none;
+}
+.data-table input {
+  width: 95%;
+  padding: 8px;
+  font-size: 20px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+}
+.special input{
+  width: 10%;
+}
+.button_save {
+  color: black;
+  width: 25%;
+  padding: 10px;
+  background-color: #F0F4F9;
+  font-size: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+}
+
+.button_save:hover {
+  background-color: #0056b3;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  color: white;
+  
+}
+.dropdown-menu {
+  margin-top: 3px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 5px;
+  z-index: 10;
+  min-width: 150px;
+}
+
+.dropdown-item {
+  width: 500px;
+  padding: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.special_input{
+  width: 100%;
+}
+.button_progress1 {
+  color: black;
+  width: 500px;
+  padding: 10px;
+  background-color: #F0F4F9;
+  font-size: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  align-content: center;
+}
+
+.button_progress1:hover {
+  background-color: #0056b3;
+  transform: scale(1.02);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  color: white;
+  border: 1px solid transparent;
+}

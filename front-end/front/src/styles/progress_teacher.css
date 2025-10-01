@@ -1,0 +1,144 @@
+.progresst{
+ font-family: Arial;
+    font-size: 20px;
+    width: 100%;
+    max-width: 1500px;
+    min-height: 1000px;
+    background-color: white;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: -9px auto 30px auto;
+    box-sizing: border-box;
+}
+
+
+
+.progresst {
+  text-align: center;
+}
+
+.progress-buttons {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  margin-top: 3px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  padding: 5px;
+  z-index: 10;
+  min-width: 150px;
+}
+
+.dropdown-item {
+  width: 500px;
+  padding: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #f0f0f0;
+}
+.students-table{
+  margin-top: 3px;
+  width: 100%;
+}
+.students-table th,
+.students-table td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+}
+
+.students-table th {
+  background-color: #f5f5f5;
+}
+.student-index{
+align-items: left;
+}
+.students-table input {
+  width: 100%; 
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 20px;
+}
+.clear-btn {
+  margin-left: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.clear-btn:hover {
+  background-color: #f0f0f0;
+  color: black;
+}
+.discipline-save-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+ 
+}
+
+.button_save {
+  text-align: center;
+  color: black;
+  padding: 10px 10px;
+  background-color: #F0F4F9;
+  font-size: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #ccc;
+}
+
+.button_save:hover {
+  background-color: #0056b3;
+  color: white;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+.button_progress2 {
+  color: black;
+  width: 500px;
+  padding: 8px 10px;
+  font-size: 20px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #F0F4F9;
+  margin-top: 10px;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  align-content: center; 
+}
+.button_progress2:hover {
+  background-color: #0056b3;
+  color: white;
+  transform: scale(1.02);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  border: none;
+}

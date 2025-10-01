@@ -1,0 +1,33 @@
+.sections {
+    text-decoration: none;
+    font-family: Arial;
+    width: 100%;                    
+    height: auto;                   
+    background-color: #F0F4F9;
+    border-radius: 10px;
+    
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 18px;
+    font-weight: normal;
+    color: black;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    word-wrap: break-word;         
+}
+.sections:hover {
+    background-color: #007bff;
+    color: white;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sections-container {
+    display: flex;
+    flex-direction: column;  
+    gap: 10px;
+}
