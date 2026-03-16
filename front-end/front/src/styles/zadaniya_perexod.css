@@ -1,0 +1,82 @@
+.progresst{
+ font-family: Arial;
+ font-size: 20px;
+ width: 100%;
+ max-width: 1500px;
+ min-height: 1000px;
+ background-color: white;
+ border: 1px solid #ccc;
+ display: flex;
+ flex-direction: column;
+ border-radius: 10px;
+ box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+ padding: 20px;
+ margin: -9px auto 30px auto;
+ box-sizing: border-box;
+}
+
+.course-header{
+ text-align: left;
+ border-bottom: 1px solid #ccc;
+ padding: 16px 10px;
+ font-size: 20px;
+ height: 40px;
+ display: flex;
+ align-items: center;
+}
+
+/* GRID */
+
+.data-grid{
+ display: grid;
+ grid-template-columns: 30% 70%;
+  
+}
+
+.grid-label{
+ padding: 12px 10px;
+ border-bottom: 1px solid #ccc;
+ display: flex;
+ align-items: center;
+}
+
+.grid-content{
+ padding: 12px 10px;
+ border-bottom: 1px solid #ccc;
+ display: flex;
+ align-items: center;
+ justify-content: flex-start;
+}
+
+/* выбранная группа */
+
+.grid-selected{
+ grid-column: 1 / 3;
+ padding: 12px 10px;
+ text-align: left;
+}
+
+/* группы */
+
+.groups-container{
+ display: flex;
+ gap: 10px;
+ flex-wrap: wrap;
+}
+
+.groups{
+ transition: background 0.2s;
+ cursor: pointer;
+ padding: 8px 14px;
+ border: 1px solid #ccc;
+ border-radius: 6px;
+ background: white;
+}
+
+.groups:hover{
+ background: #f0f0f0;
+}
+
+.selectedGroup{
+ background: #f0f0f0;
+}

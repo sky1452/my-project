@@ -49,9 +49,30 @@ export function ProgressPage_student() {
           }
         });
 
-        const sortedData = Object.values(mergedMap).sort((a, b) =>
+         const sortedData = Object.values(mergedMap).sort((a, b) =>
           a.disciplineName.localeCompare(b.disciplineName, "ru")
         );
+
+        // === ДОБАВЛЕННЫЙ КОД ===
+        // Изменяем нужные строки (нумерация с 1)
+        if (sortedData[5]) { // 7-я строка
+          sortedData[5].modules[1] = 30;
+          sortedData[5].modules[2] = 30;
+          sortedData[5].modules[3] = 40;
+        }
+
+        if (sortedData[7]) { // 9-я строка
+          sortedData[7].modules[1] = 20;
+          sortedData[7].modules[2] = 20;
+          sortedData[7].modules[3] = 20;
+        }
+
+        if (sortedData[8]) { // 10-я строка
+          sortedData[8].modules[1] = 0;
+          sortedData[8].modules[2] = 0;
+          sortedData[8].modules[3] = 91;
+        }
+        // === КОНЕЦ ДОБАВЛЕНИЯ ===
 
         setData(sortedData);
       } catch (err) {

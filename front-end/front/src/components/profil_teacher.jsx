@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const datap = [
-  { name: "Личные данные: ", id: 1 },
-  { name: "Должность: ", id: 2 },
-  { name: "Учебные дисциплины: ", id: 3 },
-  { name: "Стаж работы: ", id: 4 },
-  { name: "Дополнительно о себе: ", id: 5 },
-  { name: "Обновить фотографию профиля: ", id: 6 },
-];
-
 export function Datap() {
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")) || {});
   const [experience, setExperience] = useState("");
@@ -16,6 +7,9 @@ export function Datap() {
   const [avatar, setAvatar] = useState(user.avatar || "");
   const [disciplines, setDisciplines] = useState([]);
   const [openDiscipline, setOpenDiscipline] = useState(false);
+
+  const [isExperienceChanged, setIsExperienceChanged] = useState(false);
+  const [isDopChanged, setIsDopChanged] = useState(false);
 
   const disciplineRef = useRef(null);
 
@@ -47,14 +41,11 @@ export function Datap() {
             })
             .filter(d => d.name);
 
-          // уникальные дисциплины по имени + тип
           const uniqueDisciplines = Array.from(
             new Map(mapped.map(d => [d.name + d.type, d])).values()
           );
 
-          // сортировка по алфавиту
           uniqueDisciplines.sort((a, b) => a.name.localeCompare(b.name));
-
           setDisciplines(uniqueDisciplines);
         } else {
           console.error("Ошибка при загрузке дисциплин");
@@ -71,6 +62,8 @@ export function Datap() {
       if (user.stazh != null) setExperience(String(user.stazh));
       if (user.dop != null) setDop(user.dop);
       if (user.avatar) setAvatar(user.avatar);
+      setIsExperienceChanged(false);
+      setIsDopChanged(false);
     }
   }, [user]);
 
@@ -86,6 +79,7 @@ export function Datap() {
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
         alert("Стаж сохранён");
+        setIsExperienceChanged(false);
       } else {
         console.error("Ошибка при сохранении стажа");
       }
@@ -115,6 +109,7 @@ export function Datap() {
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
         alert("Информация о себе сохранена");
+        setIsDopChanged(false);
       } else {
         console.error("Ошибка при изменении информации о себе");
       }
@@ -146,7 +141,7 @@ export function Datap() {
           localStorage.setItem("user", JSON.stringify(updatedUser));
           setUser(updatedUser);
           setAvatar(reader.result);
-          alert("Аватарка обновлена");
+          alert("Фотография сохранена");
         } else {
           alert("Ошибка при загрузке аватарки");
         }
@@ -180,7 +175,7 @@ export function Datap() {
             <td colSpan={3}>Моя страница:</td>
           </tr>
           <tr>
-            <td>{datap[0].name}</td>
+            <td>Личные данные:</td>
             <td>
               {user.fullName} <br />
               {user.email}
@@ -190,83 +185,95 @@ export function Datap() {
             </td>
           </tr>
           <tr>
-            <td>{datap[1].name}</td>
+            <td>Должность:</td>
             <td>
               {user.position} <br /> {user.departament}
             </td>
           </tr>
           <tr>
-            <td>{datap[2].name}</td>
+            <td>Учебные дисциплины:</td>
             <td>
-              <div>
-                <div className="dropdown" ref={disciplineRef}>
-                  <div
-                    className="button_progress1"
-                    onClick={() => setOpenDiscipline(!openDiscipline)}
-                    style={{textAlign: "center"}}>
-                    Дисциплины
-                  </div>
-                  {openDiscipline && (
-                    <div className="dropdown-menu" style={{textAlign: "center"}}>
-                      {disciplines.length > 0 ? (
-                        disciplines.map((d) => (
-                          <div key={d.id} className="dropdown-item">
-                            {d.name}, {d.type}
-                          </div>
-                        ))
-                      ) : (
-                        <div className="dropdown-item" style={{ color: "#999", textAlign: "center" }}>
-                          Нет дисциплин
-                        </div>
-                      )}
-                    </div>
-                  )}
+              <div className="dropdown" ref={disciplineRef}>
+                <div
+                  className="button_progress1"
+                  onClick={() => setOpenDiscipline(!openDiscipline)}
+                  style={{ textAlign: "center" }}
+                >
+                  Дисциплины
                 </div>
+                {openDiscipline && (
+                  <div className="dropdown-menu" style={{ textAlign: "center" }}>
+                    {disciplines.length > 0 ? (
+                      disciplines.map((d) => (
+                        <div key={d.id} className="dropdown-item">
+                          {d.name}, {d.type}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="dropdown-item" style={{ color: "#999" }}>
+                        Нет дисциплин
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </td>
           </tr>
+
+          {/* --- СТАЖ --- */}
           <tr>
-            <td>{datap[3].name}</td>
+            <td>Стаж работы:</td>
             <td>
               <input
-        type="number"
-        style={{ width: "10%" }}
-        value={experience}
-        onChange={(e) => {
-          const val = e.target.value;
-          if (val === "" || (/^\d{1,2}$/.test(val) && Number(val) >= 0)) {
-            setExperience(val);
-          }
-        }}
-      />{" "}
-      {experience !== "" ? getYearWord(Number(experience)) : ""}
-
-      <button
-        className="button_save"
-        onClick={handleSaveStazh}
-        style={{ marginLeft: "10px" }}
-      >
-        Сохранить
-      </button>
+                type="number"
+                style={{ width: "10%" }}
+                value={experience}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || (/^\d{1,2}$/.test(val) && Number(val) >= 0)) {
+                    setExperience(val);
+                    setIsExperienceChanged(Number(val) !== user.stazh);
+                  }
+                }}
+              />{" "}
+              {experience !== "" ? getYearWord(Number(experience)) : ""}
+              {isExperienceChanged && (
+                <button
+                  className="button_save"
+                  
+                  onClick={handleSaveStazh}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Сохранить
+                </button>
+              )}
             </td>
           </tr>
+
+          {/* --- ДОП. ИНФО --- */}
           <tr>
-            <td>{datap[4].name}</td>
+            <td>Дополнительно о себе:</td>
             <td>
               <input
                 type="text"
                 value={dop}
-                onChange={(e) => setDop(e.target.value)}
+                onChange={(e) => {
+                  setDop(e.target.value);
+                  setIsDopChanged(e.target.value !== (user.dop || ""));
+                }}
                 placeholder="Краткая информация в вашем профиле(до 45 символов)"
                 maxLength={45}
               />
-              <button className="button_save" onClick={handleSavedop}>
-                Сохранить
-              </button>
+              {isDopChanged && (
+                <button className="button_save" onClick={handleSavedop}>
+                  Сохранить
+                </button>
+              )}
             </td>
           </tr>
+
           <tr>
-            <td>{datap[5].name}</td>
+            <td>Обновить фотографию профиля:</td>
             <td>
               <input type="file" onChange={handleAvatarChange} />
             </td>

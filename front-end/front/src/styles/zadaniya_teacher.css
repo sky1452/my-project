@@ -1,0 +1,75 @@
+.progresst{
+ font-family: Arial;
+    font-size: 20px;
+    width: 100%;
+    max-width: 1500px;
+    min-height: 1000px;
+    background-color: white;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: -9px auto 30px auto;
+    box-sizing: border-box;
+}
+
+.data-table1 {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table1 td {
+    border-top: 1px solid #ccc;
+    padding: 12px;
+    font-size: 20px;
+    width: 20%;
+        height: 20%;
+}
+
+    .data-table1 tr{
+    border-top: none;
+   
+    border-left: none;
+    border-right: none;
+    }
+ 
+.data-table1 tbody tr:nth-child(2) td {
+    border-top: none;
+    border-bottom:1px solid #ccc ;
+  
+}
+.data-table1 tbody tr:nth-child(1) td{
+    padding: 10px;
+    width: 100px;
+    height: 100px;
+    
+}
+
+.square {
+    width: 100%;
+    height: 80px;
+    border: 2px solid black;
+    margin: 10px 0;      
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.courses {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.course-item {
+    transition: background 0.2s;
+    cursor: pointer;
+  padding: 12px;
+  border: 1px solid #ccc;
+  margin-bottom: 8px;
+}
+.course-item:hover {
+  background: #f0f0f0;
+}
