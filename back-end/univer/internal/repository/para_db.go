@@ -3,16 +3,37 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"strings"
 	"time"
 	"univer/models"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func mapRowToPara(row pgx.Row) (*models.Para, error) {
+func slugify(text string) string {
+	replacer := strings.NewReplacer(
+		"ё", "e", "й", "i", "ц", "ts", "у", "u",
+		"к", "k", "е", "e", "н", "n", "г", "g",
+		"ш", "sh", "щ", "sch", "з", "z", "х", "h",
+		"ъ", "", "ф", "f", "ы", "y", "в", "v",
+		"а", "a", "п", "p", "р", "r", "о", "o",
+		"л", "l", "д", "d", "ж", "zh", "э", "e",
+		"я", "ya", "ч", "ch", "с", "s", "м", "m",
+		"и", "i", "т", "t", "ь", "", "б", "b",
+		"ю", "yu",
+	)
+
+	text = strings.ToLower(text)
+	text = replacer.Replace(text)
+	text = strings.ReplaceAll(text, " ", "-")
+
+	return text
+}
+
+func mapRowToPara(row pgx.Row, dbpool *pgxpool.Pool) (*models.Para, error) {
 	var para models.Para
 
-	// Сканируем поля из строки
 	err := row.Scan(
 		&para.Id, &para.DayOfWeek, &para.ParaNum, &para.DivisionIntoWeek, &para.WeekType,
 		&para.DivisionIntoGroups, &para.CabinetIds, &para.TeacherIds,
@@ -22,6 +43,31 @@ func mapRowToPara(row pgx.Row) (*models.Para, error) {
 		return nil, fmt.Errorf("Нет строк для сканирования: %w", err)
 	}
 
+	var disciplineName string
+
+	if para.LabName.Valid {
+		disciplineName = para.LabName.String
+	} else if para.LectureName.Valid {
+		disciplineName = para.LectureName.String
+	} else if para.PracticName.Valid {
+		disciplineName = para.PracticName.String
+	}
+
+	if disciplineName != "" {
+		para.DisciplineSlug = slugify(disciplineName)
+
+		var disciplineId int64
+		err := dbpool.QueryRow(
+			context.Background(),
+			`SELECT id FROM academic_subject WHERE name = $1 LIMIT 1`,
+			disciplineName,
+		).Scan(&disciplineId)
+
+		if err == nil {
+			para.DisciplineId = disciplineId
+		}
+	}
+
 	return &para, nil
 }
 
@@ -29,19 +75,16 @@ func GetParaNumByTime(dbpool *pgxpool.Pool, date time.Time) (int, error) {
 	var paraNum int
 
 	query := `SELECT para_time_id FROM para_time WHERE para_time_start <= $1::TIME AND para_time_end >= $1::TIME LIMIT 1`
-
-	// Форматируем дату в HH:MM:SS для корректного сравнения с TIME
 	timeString := date.Format("15:04:05")
 
 	err := dbpool.QueryRow(context.Background(), query, timeString).Scan(&paraNum)
 
-	//если вернулся id >  500 - значит это перемена
 	if paraNum > 500 {
 		paraNum = 0
 	}
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return 0, nil // 0 означает, что пара не найдена
+			return 0, nil
 		}
 		return 0, fmt.Errorf("ошибка при запросе номера пары: %w", err)
 	}
@@ -50,36 +93,26 @@ func GetParaNumByTime(dbpool *pgxpool.Pool, date time.Time) (int, error) {
 }
 
 func GetCurrentParaById(dbpool *pgxpool.Pool, id rune, date time.Time) (*models.Para, error) {
-
 	weekday := int(date.Weekday())
-	//timeString := date.Format("15:04:05")
 
 	currentPara, err := GetParaNumByTime(dbpool, date)
-
 	if err != nil {
-		return nil, fmt.Errorf("ошибка получения номера текущей пары", err)
+		return nil, fmt.Errorf("ошибка получения номера текущей пары")
 	}
 	if currentPara == 0 {
 		return nil, fmt.Errorf("сейчас перемена")
 	}
-	//query := `SELECT * FROM para WHERE day_of_week = $1 AND teachers_id @> ARRAY[$2]::BIGINT[] AND para_num = (
-	//SELECT para_time_id FROM para_time WHERE para_time_start <= $3::TIME AND para_time_end >= $3::TIME LIMIT 1)`
 
 	query := `SELECT 
     para.id,
     para.day_of_week, para.para_num, para.division_into_weeks, 
     para.para_week_type, para.division_into_groups,
     para.para_cabinet_ids, para.teachers_id,
-    
     para.lab_id, lab.name as lab_name, 
     para.lecture_id, lecture.name as lecture_name, 
     para.practic_id, practic.name as practic_name,
-    
-    -- DISTINCT убирает дубли преподавателей
     COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
-    -- DISTINCT убирает дубли кабинетов
     COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
-
     group1.name AS group_name  
 	FROM public.para para
 	LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
@@ -88,282 +121,225 @@ func GetCurrentParaById(dbpool *pgxpool.Pool, id rune, date time.Time) (*models.
 	LEFT JOIN public.practic practic ON para.practic_id = practic.id
 	LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
 	INNER JOIN public.group group1 ON para.group_id = group1.id
-
 	WHERE day_of_week = $1 
 	  AND teachers_id @> ARRAY[$2]::BIGINT[] 
 	  AND para_num = $3
-		
+	GROUP BY para.id, para.group_id, para.day_of_week, para.para_num, 
+	         group1.name, lab.name, lecture.name, practic.name
+	ORDER BY para.group_id, para.day_of_week, para.para_num ASC;`
 
-	GROUP BY para.id, 
-	         para.group_id, 
-	         para.day_of_week, 
-	         para.para_num, 
-	         group1.name, 
-	         lab.name, 
-	         lecture.name, 
-	         practic.name
-
-ORDER BY para.group_id, para.day_of_week, para.para_num ASC;
-`
 	row := dbpool.QueryRow(context.Background(), query, weekday, id, currentPara)
 
-	// Используем ранее созданную функцию для маппинга данных
-	para, err := mapRowToPara(row)
+	para, err := mapRowToPara(row, dbpool)
 	if err != nil {
-		return nil, fmt.Errorf("Не надено пары для преподавателя с id:%d  %w", id, err)
+		return nil, fmt.Errorf("Не найдено пары для преподавателя с id:%d  %w", id, err)
 	}
 	return para, nil
 }
-
-func GetTodayParasById(dbpool *pgxpool.Pool, id int, role string, date time.Time) ([]*models.Para, error) {
-	weekday := int(date.Weekday())
-	var paras []*models.Para
+func GetParasByTeacherAndDay(
+	dbpool *pgxpool.Pool,
+	teacherId rune,
+	dayOfWeek int,
+) ([]*models.Para, error) {
 
 	query := `SELECT 
-        para.id,
-        para.day_of_week, para.para_num, para.division_into_weeks, 
-        para.para_week_type, para.division_into_groups,
-        para.para_cabinet_ids, para.teachers_id,
-        
-        para.lab_id, lab.name as lab_name, 
-        para.lecture_id, lecture.name as lecture_name, 
-        para.practic_id, practic.name as practic_name,
+    para.id,
+    para.day_of_week, para.para_num, para.division_into_weeks, 
+    para.para_week_type, para.division_into_groups,
+    para.para_cabinet_ids, para.teachers_id,
+    para.lab_id, lab.name as lab_name, 
+    para.lecture_id, lecture.name as lecture_name, 
+    para.practic_id, practic.name as practic_name,
+    COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
+    COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
+    group1.name AS group_name  
+	FROM public.para para
+	LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
+	LEFT JOIN public.lab lab ON para.lab_id = lab.id
+	LEFT JOIN public.lecture lecture ON para.lecture_id = lecture.id
+	LEFT JOIN public.practic practic ON para.practic_id = practic.id
+	LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
+	INNER JOIN public.group group1 ON para.group_id = group1.id
+	WHERE day_of_week = $1 
+	  AND teachers_id @> ARRAY[$2]::BIGINT[]
+	GROUP BY para.id, para.group_id, para.day_of_week, para.para_num, 
+	         group1.name, lab.name, lecture.name, practic.name
+	ORDER BY para.para_num ASC;`
 
-        -- DISTINCT убирает дубли преподавателей
-        COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
-        -- DISTINCT убирает дубли кабинетов
-        COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
-
-        group1.name AS group_name  
-    FROM public.para para
-    LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
-    LEFT JOIN public.lab lab ON para.lab_id = lab.id
-    LEFT JOIN public.lecture lecture ON para.lecture_id = lecture.id
-    LEFT JOIN public.practic practic ON para.practic_id = practic.id
-    LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
-    INNER JOIN public.group group1 ON para.group_id = group1.id
-
-    WHERE day_of_week = $1 
-      AND (
-          CASE 
-              WHEN $3 = 'teacher' THEN para.teachers_id @> ARRAY[$2]::BIGINT[]
-              WHEN $3 = 'student' THEN group1.name = (
-                  SELECT u.properties->>'group' FROM public.users u WHERE u.user_id = $2 LIMIT 1
-              )
-              ELSE false
-          END
-      )
-
-    GROUP BY para.id, 
-             para.group_id, 
-             para.day_of_week, 
-             para.para_num, 
-             group1.name, 
-             lab.name, 
-             lecture.name, 
-             practic.name
-
-        ORDER BY para.day_of_week, para.para_num ASC;
-    `
-
-	rows, err := dbpool.Query(context.Background(), query, weekday, id, role)
+	rows, err := dbpool.Query(context.Background(), query, dayOfWeek, teacherId)
 	if err != nil {
-		return nil, fmt.Errorf("ошибка выполнения запроса: %w", err)
+		return nil, err
 	}
 	defer rows.Close()
 
+	var paras []*models.Para
+
 	for rows.Next() {
-		para, err := mapRowToPara(rows)
+		para, err := mapRowToPara(rows, dbpool)
 		if err != nil {
 			return nil, err
 		}
 		paras = append(paras, para)
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf("Не найдено пар на сегодня для %s с id:%d  %w", role, id, err)
-	}
 	return paras, nil
 }
-func GetTodayParasByGroup(dbpool *pgxpool.Pool, group *models.Group, date time.Time) ([]*models.Para, error) {
-	weekday := int(date.Weekday())
-	var paras []*models.Para
+func GetParasByGroupAndDay(
+	dbpool *pgxpool.Pool,
+	groupId int64,
+	dayOfWeek int,
+) ([]*models.Para, error) {
 
 	query := `SELECT 
-        para.id,
-        para.day_of_week, para.para_num, para.division_into_weeks, 
-        para.para_week_type, para.division_into_groups,
-        para.para_cabinet_ids, para.teachers_id,
-        
-        para.lab_id, lab.name as lab_name, 
-        para.lecture_id, lecture.name as lecture_name, 
-        para.practic_id, practic.name as practic_name,
+    para.id,
+    para.day_of_week, para.para_num, para.division_into_weeks, 
+    para.para_week_type, para.division_into_groups,
+    para.para_cabinet_ids, para.teachers_id,
+    para.lab_id, lab.name as lab_name, 
+    para.lecture_id, lecture.name as lecture_name, 
+    para.practic_id, practic.name as practic_name,
+    COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
+    COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
+    group1.name AS group_name  
+	FROM public.para para
+	LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
+	LEFT JOIN public.lab lab ON para.lab_id = lab.id
+	LEFT JOIN public.lecture lecture ON para.lecture_id = lecture.id
+	LEFT JOIN public.practic practic ON para.practic_id = practic.id
+	LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
+	INNER JOIN public.group group1 ON para.group_id = group1.id
+	WHERE day_of_week = $1 
+	  AND para.group_id = $2
+	GROUP BY para.id, para.group_id, para.day_of_week, para.para_num, 
+	         group1.name, lab.name, lecture.name, practic.name
+	ORDER BY para.para_num ASC;`
 
-        -- DISTINCT убирает дубли преподавателей
-        COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
-        -- DISTINCT убирает дубли кабинетов
-        COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
-
-        group1.name AS group_name  
-    FROM public.para para
-    LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
-    LEFT JOIN public.lab lab ON para.lab_id = lab.id
-    LEFT JOIN public.lecture lecture ON para.lecture_id = lecture.id
-    LEFT JOIN public.practic practic ON para.practic_id = practic.id
-    LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
-    INNER JOIN public.group group1 ON para.group_id = group1.id
-
-    WHERE day_of_week = $1 
-      AND group_id = $2
-
-    GROUP BY para.id, 
-             para.group_id, 
-             para.day_of_week, 
-             para.para_num, 
-             group1.name, 
-             lab.name, 
-             lecture.name, 
-             practic.name
-
-    ORDER BY para.group_id, para.day_of_week, para.para_num ASC;
-    `
-
-	rows, err := dbpool.Query(context.Background(), query, weekday, group.Id)
+	rows, err := dbpool.Query(context.Background(), query, dayOfWeek, groupId)
 	if err != nil {
-		return nil, fmt.Errorf("ошибка выполнения запроса: %w", err)
+		return nil, err
 	}
 	defer rows.Close()
 
+	var paras []*models.Para
+
 	for rows.Next() {
-		para, err := mapRowToPara(rows)
+		para, err := mapRowToPara(rows, dbpool)
 		if err != nil {
 			return nil, err
 		}
 		paras = append(paras, para)
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf("Не найдено пар на сегодня для %s  %w", group.Name, err)
-	}
 	return paras, nil
+}
+func GetParaById(
+	dbpool *pgxpool.Pool,
+	paraId rune,
+) (*models.Para, error) {
+
+	query := `SELECT 
+    para.id,
+    para.day_of_week, para.para_num, para.division_into_weeks, 
+    para.para_week_type, para.division_into_groups,
+    para.para_cabinet_ids, para.teachers_id,
+    para.lab_id, lab.name as lab_name, 
+    para.lecture_id, lecture.name as lecture_name, 
+    para.practic_id, practic.name as practic_name,
+    COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
+    COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
+    group1.name AS group_name  
+	FROM public.para para
+	LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
+	LEFT JOIN public.lab lab ON para.lab_id = lab.id
+	LEFT JOIN public.lecture lecture ON para.lecture_id = lecture.id
+	LEFT JOIN public.practic practic ON para.practic_id = practic.id
+	LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
+	INNER JOIN public.group group1 ON para.group_id = group1.id
+	WHERE para.id = $1
+	GROUP BY para.id, para.group_id, para.day_of_week, para.para_num, 
+	         group1.name, lab.name, lecture.name, practic.name
+	LIMIT 1;`
+
+	row := dbpool.QueryRow(context.Background(), query, paraId)
+
+	return mapRowToPara(row, dbpool)
+}
+func GetAllParas(dbpool *pgxpool.Pool) ([]*models.Para, error) {
+
+	query := `SELECT 
+    para.id,
+    para.day_of_week, para.para_num, para.division_into_weeks, 
+    para.para_week_type, para.division_into_groups,
+    para.para_cabinet_ids, para.teachers_id,
+    para.lab_id, lab.name as lab_name, 
+    para.lecture_id, lecture.name as lecture_name, 
+    para.practic_id, practic.name as practic_name,
+    COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
+    COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
+    group1.name AS group_name  
+	FROM public.para para
+	LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
+	LEFT JOIN public.lab lab ON para.lab_id = lab.id
+	LEFT JOIN public.lecture lecture ON para.lecture_id = lecture.id
+	LEFT JOIN public.practic practic ON para.practic_id = practic.id
+	LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
+	INNER JOIN public.group group1 ON para.group_id = group1.id
+	GROUP BY para.id, para.group_id, para.day_of_week, para.para_num, 
+	         group1.name, lab.name, lecture.name, practic.name
+	ORDER BY para.day_of_week, para.para_num;`
+
+	rows, err := dbpool.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var paras []*models.Para
+
+	for rows.Next() {
+		para, err := mapRowToPara(rows, dbpool)
+		if err != nil {
+			return nil, err
+		}
+		paras = append(paras, para)
+	}
+
+	return paras, nil
+}
+func GetTodayParasById(dbpool *pgxpool.Pool, id int, role string, date time.Time) ([]*models.Para, error) {
+	weekday := int(date.Weekday())
+	return GetParasByTeacherAndDay(dbpool, rune(id), weekday)
+}
+
+func GetTodayParasByGroup(dbpool *pgxpool.Pool, group *models.Group, date time.Time) ([]*models.Para, error) {
+	weekday := int(date.Weekday())
+	return GetParasByGroupAndDay(dbpool, int64(group.Id), weekday)
 }
 
 func GetScheduleById(dbpool *pgxpool.Pool, id int, role string) ([]*models.Para, error) {
 	var paras []*models.Para
 
-	query := `SELECT 
-        para.id,
-        para.day_of_week, para.para_num, para.division_into_weeks, 
-        para.para_week_type, para.division_into_groups,
-        para.para_cabinet_ids, para.teachers_id,
-        
-        para.lab_id, lab.name as lab_name, 
-        para.lecture_id, lecture.name as lecture_name, 
-        para.practic_id, practic.name as practic_name,
-
-        -- DISTINCT убирает дубли преподавателей
-        COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
-        -- DISTINCT убирает дубли кабинетов
-        COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
-
-        group1.name AS group_name  
-    FROM public.para para
-    LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
-    LEFT JOIN public.lab lab ON para.lab_id = lab.id
-    LEFT JOIN public.lecture lecture ON para.lecture_id = lecture.id
-    LEFT JOIN public.practic practic ON para.practic_id = practic.id
-    LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
-    INNER JOIN public.group group1 ON para.group_id = group1.id
-
-    WHERE CASE 
-              WHEN $2 = 'teacher' THEN para.teachers_id @> ARRAY[$1]::BIGINT[]
-              WHEN $2 = 'student' THEN group1.name = (
-                  SELECT u.properties->>'group' FROM public.users u WHERE u.user_id = $1 LIMIT 1
-              )
-              ELSE false
-          END
-
-    GROUP BY para.id, 
-             para.group_id, 
-             para.day_of_week, 
-             para.para_num, 
-             group1.name, 
-             lab.name, 
-             lecture.name, 
-             practic.name
-
-    ORDER BY para.group_id, para.day_of_week, para.para_num ASC;
-    `
-
-	rows, err := dbpool.Query(context.Background(), query, id, role)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка выполнения запроса: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		para, err := mapRowToPara(rows)
+	for day := 0; day <= 6; day++ {
+		dayParas, err := GetParasByTeacherAndDay(dbpool, rune(id), day)
 		if err != nil {
 			return nil, err
 		}
-		paras = append(paras, para)
+		paras = append(paras, dayParas...)
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf("Не найдено пар для %d  %w", id, err)
-	}
 	return paras, nil
 }
+
 func GetScheduleByGroup(dbpool *pgxpool.Pool, group *models.Group) ([]*models.Para, error) {
 	var paras []*models.Para
 
-	query := `SELECT 
-        para.id,
-        para.day_of_week, para.para_num, para.division_into_weeks, 
-        para.para_week_type, para.division_into_groups,
-        para.para_cabinet_ids, para.teachers_id,
-        para.lab_id, lab.name as lab_name, 
-        para.lecture_id, lecture.name as lecture_name, 
-        para.practic_id, practic.name as practic_name,
-        COALESCE(array_agg(DISTINCT USER1.name), '{}') AS teachers_name,  
-        COALESCE(array_agg(DISTINCT CABINET.name), '{}') AS cabinets_name,
-        group1.name AS group_name  
-    FROM public.para para
-    LEFT JOIN public.users USER1 ON USER1.user_id = ANY(para.teachers_id)
-    LEFT JOIN public.lab lab ON para.lab_id = lab.id
-    LEFT JOIN public.lecture lecture ON para.lecture_id = lecture.id
-    LEFT JOIN public.practic practic ON para.practic_id = practic.id
-    LEFT JOIN public.cabinet CABINET ON CABINET.id = ANY(para.para_cabinet_ids)
-    INNER JOIN public.group group1 ON para.group_id = group1.id
-    WHERE group_id = $1
-    GROUP BY para.id, para.group_id, para.day_of_week, para.para_num, 
-             group1.name, lab.name, lecture.name, practic.name
-    ORDER BY para.group_id, para.day_of_week, para.para_num ASC;`
-
-	rows, err := dbpool.Query(context.Background(), query, group.Id)
-	if err != nil {
-		return nil, fmt.Errorf("ошибка выполнения запроса: %w", err)
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		para, err := mapRowToPara(rows)
+	for day := 0; day <= 6; day++ {
+		dayParas, err := GetParasByGroupAndDay(dbpool, int64(group.Id), day)
 		if err != nil {
-			fmt.Printf("ошибка: %w", err)
-			return nil, fmt.Errorf("ошибка маппинга строки: %w", err)
+			return nil, err
 		}
-		
-		paras = append(paras, para)
+		paras = append(paras, dayParas...)
 	}
-
-	//if err := rows.Err(); err != nil {
-	//	return nil, fmt.Errorf("ошибка при обработке строк: %w", err)
-	//}
-	//
-	//// Если ни одной строки не найдено, можно вернуть пустой срез, а не nil.
-	//if paras == nil {
-	//	paras = []*models.Para{}
-	//}
 
 	return paras, nil
 }

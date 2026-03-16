@@ -24,4 +24,7 @@ type Para struct {
 	DivisionIntoGroups types.NullString   `json:"divisionIntoGroups" swaggertype:"string"`
 	CabinetIds         []rune             `json:"cabinetIds"`
 	CabinetNames       []types.NullString `json:"cabinetNames"`
+	
+	DisciplineId int64 `json:"disciplineId"`
+	DisciplineSlug string `json:"disciplineSlug"`
 }
