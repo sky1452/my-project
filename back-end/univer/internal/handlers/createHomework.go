@@ -32,7 +32,8 @@ func (h *Handler) CreateHomeworkHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Проверка обязательных полей
-	if req.TeacherID == 0 || req.GroupName == "" || req.Title == "" || req.Description == "" || req.MaxScore == 0 || req.Deadline == "" {
+	if req.TeacherID == 0 || req.GroupName == "" || req.Title == "" ||
+		req.Description == "" || req.MaxScore == 0 || req.Deadline == "" || req.DisciplineID == 0 {
 		http.Error(w, "Заполните все обязательные поля", http.StatusBadRequest)
 		return
 	}
@@ -44,6 +45,14 @@ func (h *Handler) CreateHomeworkHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// (опционально, но правильно) проверка дисциплины
+	var disciplineExists bool
+	err = h.DB.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM academic_subject WHERE id=$1)", req.DisciplineID).Scan(&disciplineExists)
+	if err != nil || !disciplineExists {
+		http.Error(w, "Дисциплина не найдена", http.StatusBadRequest)
+		return
+	}
+
 	deadlineTime, err := time.Parse(time.RFC3339, req.Deadline)
 	if err != nil {
 		http.Error(w, "Неверный формат deadline. Используйте ISO 8601", http.StatusBadRequest)
@@ -52,19 +61,22 @@ func (h *Handler) CreateHomeworkHandler(w http.ResponseWriter, r *http.Request) 
 
 	var homeworkID int
 	query := `
-	INSERT INTO homeworks 
-	(teacher_id, group_id, title, description, max_score, deadline, created_at, updated_at)
-	VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-	RETURNING id
-`
+		INSERT INTO homeworks 
+		(teacher_id, group_id, discipline_id, title, description, max_score, deadline, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+		RETURNING id
+	`
+
 	err = h.DB.QueryRow(ctx, query,
-	req.TeacherID,
-	groupID,
-	req.Title,
-	req.Description,
-	req.MaxScore,
-	deadlineTime,
-).Scan(&homeworkID)
+		req.TeacherID,
+		groupID,
+		req.DisciplineID,
+		req.Title,
+		req.Description,
+		req.MaxScore,
+		deadlineTime,
+	).Scan(&homeworkID)
+
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Ошибка при создании задания: %v", err), http.StatusInternalServerError)
 		return
