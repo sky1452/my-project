@@ -95,7 +95,7 @@ func main() {
 	router.HandleFunc("/grades/{group}/{discipline}", h.GetGradesHandler).Methods("GET")
 	router.HandleFunc("/studentGrades/{studentId}", h.GetStudentGrades).Methods("GET")
 	router.HandleFunc("/studentSchedule/{studentId}", h.MySchedule).Methods("GET")
-
+	router.HandleFunc("/discipline/{disciplineId}/student/{userId}", h.GetStudentHomeworks)
 	router.HandleFunc("/discipline/{disciplineId}", h.GetDisciplineById).Methods("GET")
 	router.HandleFunc("/createHomework", h.CreateHomeworkHandler).Methods("POST")
 	router.HandleFunc("/getHomeworks", h.GetHomeworks).Methods("GET")
