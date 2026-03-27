@@ -14,8 +14,7 @@ const userId = user?.userId;
 const { disciplineId } = useParams();
 
 const [discipline, setDiscipline] = useState(null);
-const [groups, setGroups] = useState([]);
-const [selectedGroup, setSelectedGroup] = useState(null);
+const [tasks, setTasks] = useState([]);
 
 useEffect(() => {
 
@@ -40,94 +39,77 @@ useEffect(() => {
 
 useEffect(() => {
 
-  if (!userId || !disciplineId){
+  setLoading(true);
+
+  if (!userId){
     setLoading(false);
     return;
   }
 
-  fetch(`http://localhost:8081/mySchedule/${userId}`)
+  fetch(`http://localhost:8081/discipline/${disciplineId}/student/${userId}`)
     .then(res => res.json())
     .then(data => {
-
-      const filtered = data.filter(
-        item => item.disciplineId === parseInt(disciplineId)
-      );
-
-      const uniqueGroups = [
-        ...new Set(filtered.map(item => item.groupName))
-      ];
-
-      const Groups = uniqueGroups.sort((a,b)=>a.localeCompare(b,"ru"));
-
-      setGroups(Groups);
-
+      if (data.error) {
+        console.error("Server error:", data.error);
+        setTasks([]); 
+      } else if (Array.isArray(data.tasks)) {
+        setTasks(data.tasks); 
+        console.log("Задания для студента:", data.tasks);
+      } 
+      setLoading(false);
     })
-    .catch(err => console.error("Ошибка загрузки групп:", err));
+    .catch(err => {
+      console.error("Ошибка при загрузке заданий студента:", err);
+      setTasks([]);
+      setLoading(false);
+    });
+}, [disciplineId, userId]);
 
-}, [userId, disciplineId]);
-
+const nearestDeadline =
+  tasks && tasks.length > 0
+    ? new Date(Math.min(...tasks.map(t => new Date(t.deadline).getTime())))
+    : null;
 
 if (loading) return <p>Загрузка страницы дисциплины...</p>;
 
 return (
 
-<div className="progresst">
+<div className="zadaniya_main">
 
   <div style={{textAlign:"center"}}>
-    Проверка заданий
+    Мои задания
   </div>
 
   <div className="course-header">
     Название курса: {discipline}
   </div>
-
-  <div className="data-grid">
-
-    <div className="grid-label">
-      Выберите группу:
-    </div>
-
-    <div className="grid-content">
-      <div className="groups-container">
-        {groups.map(group => (
-          <div
-            key={group}
-            className="groups"
-            onClick={()=>setSelectedGroup(group)}
-          >
-            {group}
-          </div>
-        ))}
-      </div>
-    </div>
-
-    {selectedGroup && (
-  <>
-    <div className="grid-label">
-      Выбранная группа: {selectedGroup}
-    </div>
-
-    <div className="grid-content">
-      <div className="groups-container">
-        <div className="groups" onClick={()=>setMode("create")}>
-          Создать задание
-        </div>
-        <div className="groups" onClick={()=>setMode("received")}>
-          Полученные работы
-        </div>
-        <div className="groups" onClick={()=>setMode("created")}>
-          Созданные задания
-        </div>
-      </div>
-    </div>
-  </>
-)}
-
+  <div className="course-header">
+    Ближайший дедлайн:{" "}
+        {nearestDeadline
+    ? nearestDeadline.toLocaleString("ru-RU", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "Задания отсутствуют"}
   </div>
-{mode === "create" &&(<CreateHomework disciplineId = {disciplineId} group = {selectedGroup} userId = {userId} />)}
-{mode === "received" &&(<ReceivedWorks disciplineId = {disciplineId} group = {selectedGroup} userId = {userId} />)}
-{mode === "created" &&(<CreatedHomework disciplineId = {disciplineId} group = {selectedGroup} userId = {userId} />)}
+  <div className="course-header">
+    Прогресс: /{tasks && tasks.length > 0 ?  tasks.length : "Задания отсутствуют"}
+  </div>
+  <div className="zadaniyes">
+  Задания данного курса:
+  <div className="zadaniya-list">
+  {tasks && tasks.length > 0 ? (
+    tasks.map((t) => (
+      <div className="zadaniye" key={t.id}>{t.title}</div>
+    ))
+  ) : (
+    <div >У вас пока нет созданных заданий в этой дисциплине и группе.</div>
+  )}
 </div>
-
+  </div>
+  </div>
 )
 }

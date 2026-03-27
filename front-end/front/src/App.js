@@ -15,6 +15,7 @@ import { Datap_student } from './components/profil_student';
 import { SchedulePage_student } from './components/schedule_student';
 import{ ProgressPage_student } from './components/progress_student';
 
+import './styles/zadaniya_perexod_student.css';
 import './styles/zadaniya_perexod.css';
 import './styles/layout.css';
 import './styles/profil_teacher.css';

@@ -23,6 +23,7 @@
  height: 40px;
  display: flex;
  align-items: center;
+ 
 }
 
 /* GRID */
@@ -75,6 +76,7 @@
 
 .groups:hover{
  background: #f0f0f0;
+ 
 }
 
 .selectedGroup{

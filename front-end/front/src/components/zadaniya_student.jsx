@@ -51,7 +51,7 @@ const navigate = useNavigate();
 }, [userId]);
 if (loading) return <p>Загрузка дисципилин...</p>
   return (
-    <div className="progresst">Проверка заданий
+    <div className="progresst">Мои задания
     
     <div>
  <div style={{ textAlign: 'left', fontSize: '20px', marginTop: '4%' }}>Ваши недавно посещённые курсы:</div>
