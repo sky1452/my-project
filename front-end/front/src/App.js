@@ -28,7 +28,7 @@ import './styles/progress_student.css';
 import './styles/zadaniya_teacher.css';
 import './styles/createhomework.css';
 import './styles/createdhomework.css';
-
+import './styles/my_homework.css';
 
 function GroupsPage() {
   return <h2>Учебные группы и дисциплины</h2>;
