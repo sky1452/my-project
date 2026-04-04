@@ -1,12 +1,11 @@
-import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Sections_teacher } from './sections_teacher';
+import { SectionsTeacher } from './sections_teacher';
 
-export function MainLayout_teacher() {
+export function MainLayoutTeacher() {
   return (
     <div className="app-layout">
       <aside className="sidebar">
-        <Sections_teacher />
+        <SectionsTeacher />
       </aside>
       <main className="main-content">
         <Outlet />

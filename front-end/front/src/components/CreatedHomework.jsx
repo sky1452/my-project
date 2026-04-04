@@ -9,17 +9,7 @@ useEffect(() => {
   fetch(`http://localhost:8081/getHomeworks?disciplineId=${disciplineId}&group=${group}&teacherId=${userId}`) //ф-ия получения массива созданных заданий по дисциплине, группе и преподу 
     .then((response) => response.json())
     .then((data) => {
-        {/* [
-  {
-    "id": 1,
-    "title": "ПРИб-235 конспекты лекций",
-    "description": "Необходимо подготовить конспекты лекций по дисциплине \"Электроника и Схемотехника\"",
-    "max_score": 100,
-    "created_at": "2023-10-01 17:40",
-    "updated_at": "2023-10-01 20:30",
-    "deadline": "2023-10-15 08:30"
-  }
-]*/}
+
             if (data.error) {
         console.error("Server error:", data.error);
         setHomeworks([]); // пустой массив

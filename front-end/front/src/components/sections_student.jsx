@@ -32,7 +32,7 @@ const sections = [
     link: '/rating_student',
   },
 ];
-export function Sections_student() {
+export function SectionsStudent() {
   return (
     <div className="sections-container">
       {sections.map((section) => (

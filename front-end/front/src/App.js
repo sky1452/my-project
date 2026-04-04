@@ -1,8 +1,7 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import { HomeworkPage} from './components/zadaniya_teacher';
-import { MainLayout_teacher } from './components/MainLayout_teacher';
+import { MainLayoutTeacher } from './components/MainLayout_teacher';
 import { Datap } from './components/profil_teacher';
 import { SchedulePage } from './components/schedule_teacher';
 import  Login  from './components/vhod';
@@ -10,11 +9,11 @@ import{ ProgressPage } from './components/progress_teacher'
 import {HomeworkPage_id} from './components/zadaniya_perexod';
 import {Homework_studentPage} from './components/zadaniya_student';
 import {HomeworkStudentPage_id} from './components/zadaniya_perexod_student';
-import { MainLayout_student } from './components/MainLayout_student';
+import { MainLayoutStudent } from './components/MainLayout_student';
 import { Datap_student } from './components/profil_student';
 import { SchedulePage_student } from './components/schedule_student';
 import{ ProgressPage_student } from './components/progress_student';
-import{ MyHomeworks } from './components/my_homeworks';
+import{ MyHomeworks } from './components/My_homework';
 
 import './styles/zadaniya_perexod_student.css';
 import './styles/zadaniya_perexod.css';
@@ -54,7 +53,7 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         
-        <Route element={<MainLayout_teacher />}>
+        <Route element={<MainLayoutTeacher />}>
           <Route path="/profile_teacher" element={<Datap />} />
           <Route path="/groups_teacher" element={<GroupsPage />} />{/*костыль*/}
           <Route path="/schedule_teacher" element={<SchedulePage />} />
@@ -66,7 +65,7 @@ function App() {
           element={<HomeworkPage_id />} 
         />
           </Route>
-          <Route element={<MainLayout_student />}>
+          <Route element={<MainLayoutStudent />}>
           <Route path="/profile_student" element={<Datap_student />} />
           <Route path="/rating_student" element={<Rating_studentPage />} />{/*костыль*/}
           <Route path="/schedule_student" element={<SchedulePage_student />} />

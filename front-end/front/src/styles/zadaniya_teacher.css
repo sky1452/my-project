@@ -68,6 +68,7 @@
     cursor: pointer;
   padding: 12px;
   border: 1px solid #ccc;
+  border-radius: 6px;
   margin-bottom: 8px;
 }
 .course-item:hover {

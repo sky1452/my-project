@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchDiscipline, fetchStudentTasks } from "./api";
+import { fetchDiscipline, fetchStudentTasks, fetchProgress } from "./api";
 
 export function HomeworkStudentPage_id() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -14,7 +14,12 @@ export function HomeworkStudentPage_id() {
     queryFn: () => fetchDiscipline(disciplineId),
     enabled: !!userId,
   })
-
+  const {data: progress, isLoading: progressLoading} = useQuery({
+    queryKey: ["progress", userId],
+    queryFn: () => fetchProgress(userId),
+    enabled: !!userId,
+    refetchInterval: 1000,
+  })
   const { data: tasksData, isLoading: tasksLoading } = useQuery({
     queryKey: ["tasks", disciplineId, userId],
     queryFn: () => fetchStudentTasks(disciplineId, userId),
@@ -27,7 +32,7 @@ export function HomeworkStudentPage_id() {
       ? new Date(Math.min(...tasks.map(t => new Date(t.deadline).getTime())))
       : null;
 
-  if (disciplineLoading || tasksLoading) return <p>Загрузка...</p>;
+  if (disciplineLoading || tasksLoading || progressLoading) return <p>Загрузка...</p>;
 
   return (
     <div className="zadaniya_main">
@@ -52,7 +57,7 @@ export function HomeworkStudentPage_id() {
     : "Задания отсутствуют"}
   </div>
   <div className="course-header">
-    Прогресс: /{tasks && tasks.length > 0 ?  tasks.length : "Задания отсутствуют"}
+    Прогресс: {progress?.progress || 0}/{tasks && tasks.length > 0 ? tasks.length : "Задания отсутствуют"}
   </div>
   <div className="zadaniyes">
   Задания данного курса:

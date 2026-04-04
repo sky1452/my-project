@@ -33,7 +33,7 @@ const sections = [
   },
 ];
 
-export function Sections_teacher() {
+export function SectionsTeacher() {
   return (
     <div className="sections-container">
       {sections.map((section) => (

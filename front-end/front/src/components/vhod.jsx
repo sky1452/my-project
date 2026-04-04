@@ -104,7 +104,7 @@ export default function Login() {
               />
             </div>
             <div className="form-group">
-              <button type="submit">Войти</button>
+              <button className="button-login" type="submit">Войти</button>
             </div>
             {errorVisible && (
               <p className="error-message">{errorMessage}</p>

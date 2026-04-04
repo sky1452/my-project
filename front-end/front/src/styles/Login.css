@@ -82,7 +82,7 @@ input:focus {
   outline: none;
 }
 
-button {
+.button-login {
   width: 100%;
   padding: 10px;
   background-color: #007bff;
@@ -94,7 +94,7 @@ button {
   margin-top: 10px;
 }
 
-button:hover {
+.button-login:hover {
   background-color: #0056b3;
   transform: scale(1.02);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);

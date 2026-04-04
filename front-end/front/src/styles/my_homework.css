@@ -1,311 +1,324 @@
-.my-homework1 {
-display: grid;
-grid-template-columns: 1fr 3fr;
-grid-template-rows: auto 1fr auto auto auto;
-grid-column-gap: 10px;
-grid-row-gap: 20px;
- border: 1px solid #ccc;
- border-radius: 6px;
- background: white;
- padding: 8px 14px;
- margin : 20px auto;
-}
+  .my-homework1 {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: auto 1fr auto auto auto;
+  grid-column-gap: 10px;
+  grid-row-gap: 20px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  padding: 8px 14px;
+  margin : 20px auto;
+  }
 
-.div01 {
-    grid-column: span 2 / span 2;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  font-weight: bold;
-}
+  .div01 {
+      grid-column: span 2 / span 2;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    font-weight: bold;
+  }
 
-.div02 {
+  .div02 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 2;
+        display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+    
+  .div03 {
+      
+      grid-row-start: 2;
+      display: flex; 
+      justify-content: flex-start; 
+    align-items: center;
     border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 2;
+  border-radius: 6px;
+  background: white;
+    white-space: pre-wrap;      /* перенос строк */
+    overflow-wrap: break-word;  /* перенос длинных слов */
+    word-break: break-word;
+    overflow-x: hidden;
+        padding: 8px 14px;   
+  }
+
+  .div04 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 3;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div05 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 3;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div06 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 4;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div07 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 4;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+
+  }
+
+  .div08 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 5;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div09 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 5;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div010 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 6;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div011 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 6;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div012 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 7;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div013 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 7;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div014 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 8;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div015 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 8;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div016 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 9;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div017 {
+      border: 1px solid #ccc;
+  border-radius: 6px;
+      grid-row-start: 9;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    padding: 8px 14px;
+  }
+
+  .div018 {
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+      grid-column: span 2 / span 2;
+      grid-row-start: 10;
+      padding: 8px 14px;
+    background-color: #F0F4F9;
+    font-size: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    margin-left: auto;            /* центр по горизонтали */
+      margin-right: auto;           /* центр по горизонтали */
+  }
+  .div018:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    color: white;
+    border: 1px solid black;
+  }
+
+  .my-homework2 {
+      display: grid;
+     grid-template-columns: 1fr 3fr; 
+  grid-template-rows: auto 1fr auto auto auto;
+    grid-column-gap: 10px;
+  grid-row-gap: 20px;
+      border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  padding: 8px 14px;
+  margin : 20px auto;
+  width: 100%;
+  max-width: none;
+  }
+      
+  .div001 {
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+      grid-column: span 2 / span 2;
+      padding: 8px 14px;
+  }
+
+ .div002 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  grid-row-start: 2;
+
+  padding: 8px 14px;
+  grid-column: span 2;
+  width: 100%;
+}
+
+  .div004 {
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+      grid-row-start: 3;
+      padding: 8px 14px;
+  }
+
+  .div005 {
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+      grid-row-start: 3;
+      padding: 8px 14px;
+  }
+
+  .div006 {
+      grid-column: span 2 / span 2;
+      grid-row-start: 4;
+      display: flex; 
+      justify-content: center; 
+    align-items: center;
+      padding: 8px 14px;
+    background-color: #F0F4F9;
+    font-size: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    margin-left: auto;            
+      margin-right: auto;
        display: flex; 
     justify-content: center; 
   align-items: center;
-  padding: 8px 14px;
-}
-  
-.div03 {
-    
-    grid-row-start: 2;
-     display: flex; 
-    justify-content: flex-start; 
-  align-items: center;
   border: 1px solid #ccc;
  border-radius: 6px;
  background: white;
+  align-items: center;
    white-space: pre-wrap;      /* перенос строк */
   overflow-wrap: break-word;  /* перенос длинных слов */
   word-break: break-word;
-  overflow-x: hidden;
-      padding: 8px 14px;   
-}
-
-.div04 {
+ white-space: pre-wrap;      /* перенос строк */
+  overflow-wrap: break-word;  /* перенос длинных слов */
+  word-break: break-word;
+  overflow-x: hidden;   
+  }
+  .div006:hover{
+        background-color: #0056b3;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    color: white;
+    border: 1px solid black;
+  }
+  .div007 {
+      color: black;
+  display: flex;
+  width: 100%;
+      justify-content: center; 
+    align-items: center;
+      padding: 8px 14px;
+    background-color: #F0F4F9;
+    font-size: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
     border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 3;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div05 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 3;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div06 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 4;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div07 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 4;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-
-}
-
-.div08 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 5;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div09 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 5;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div010 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 6;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div011 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 6;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div012 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 7;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div013 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 7;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div014 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 8;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div015 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 8;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div016 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 9;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div017 {
-    border: 1px solid #ccc;
- border-radius: 6px;
-    grid-row-start: 9;
-    display: flex; 
-    justify-content: center; 
-  align-items: center;
-  padding: 8px 14px;
-}
-
-.div018 {
-     display: flex; 
-    justify-content: center; 
-  align-items: center;
-    grid-column: span 2 / span 2;
-    grid-row-start: 10;
-    padding: 8px 14px;
-  background-color: #F0F4F9;
-  font-size: 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-   margin-left: auto;            /* центр по горизонтали */
-    margin-right: auto;           /* центр по горизонтали */
-}
-.div018:hover {
-  background-color: #0056b3;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-  color: white;
-  border: 1px solid black;
-}
-
-.my-homework2 {
-    display: grid;
-   grid-template-columns: 1fr 3fr;
-grid-template-rows: auto 1fr auto auto auto;
-   grid-column-gap: 10px;
-grid-row-gap: 20px;
-    border: 1px solid #ccc;
- border-radius: 6px;
- background: white;
- padding: 8px 14px;
- margin : 20px auto;
-}
-    
-.div001 {
-     display: flex; 
-    justify-content: center; 
-  align-items: center;
-    grid-column: span 2 / span 2;
-    padding: 8px 14px;
-}
-
-.div002 {
-    display: flex; 
-    justify-content: flex-start; 
-  align-items: center;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-    grid-row-start: 2;
-    padding: 8px 14px;
-}
-
-.div003 {
-    display: flex; 
-    justify-content: flex-start; 
- align-items: flex-start;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-    grid-row-start: 2;
-    padding: 8px 14px;
-    flex-direction: column;
-     gap: 10px;
-}
-
-.div004 {
-    display: flex; 
-    justify-content: flex-start; 
-  align-items: center;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-    grid-row-start: 3;
-    padding: 8px 14px;
-}
-
-.div005 {
-    display: flex; 
-    justify-content: flex-start; 
-  align-items: center;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-    grid-row-start: 3;
-    padding: 8px 14px;
-}
-
-.div006 {
-    grid-column: span 2 / span 2;
-    grid-row-start: 4;
-     display: flex; 
-    justify-content: center; 
-  align-items: center;
-
-    padding: 8px 14px;
-  background-color: #F0F4F9;
-  font-size: 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-   margin-left: auto;            /* центр по горизонтали */
-    margin-right: auto;           /* центр по горизонтали */
-}
-.div006:hover{
-      background-color: #0056b3;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-  color: white;
-  border: 1px solid black;
-}
-.div007 {
-    color: black;
-display: flex;
-width: 100%;
-    justify-content: center; 
-  align-items: center;
-    padding: 8px 14px;
-  background-color: #F0F4F9;
-  font-size: 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-}
+  }
+  .avatar_teacher{
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  }
