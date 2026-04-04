@@ -11,7 +11,11 @@ import (
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "univer/docs"
-	
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 // @title Univer	
@@ -19,15 +23,12 @@ import (
 // @description Приложение для автоматизации учебных процессов
 // @host localhost:8081
 
-// corsMiddleware добавляет CORS-заголовки и обрабатывает preflight
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Разрешаем фронт React
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
-		// Preflight OPTIONS
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
@@ -40,29 +41,38 @@ func corsMiddleware(next http.Handler) http.Handler {
 func main() {
 	fmt.Println("Server started")
 
-	// 🔹 Загружаем конфиг
 	cfg, err := config.LoadConfig("C:/Users/юрий/Desktop/my project/back-end/univer/internal/config/config.yaml")
 	if err != nil {
 		log.Fatalf("Ошибка загрузки конфигурации: %v", err)
 	}
 
-	// 🔹 Подключаемся к БД
 	conn, err := db.ConnectDB(cfg.Database.DSN)
 	if err != nil {
 		log.Fatalf("Ошибка подключения к базе данных: %v", err)
 	}
 	defer conn.Close()
 
-	// 🔹 Создаём роутер
+	// 🔥 S3 ИНИЦИАЛИЗАЦИЯ
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region:   aws.String("ru-central1"),
+		Endpoint: aws.String("https://storage.yandexcloud.net"),
+		S3ForcePathStyle: aws.Bool(true),
+		Credentials: credentials.NewStaticCredentials(
+			"YCAJE25LnH-jAwtkZ4pWouxZs",
+			"YCNK5wafOwQ7tZnNq7PVn8FwxkxOxvCTP0WpFqoV",
+			"",
+		),
+	}))
+
+	s3Client := s3.New(sess)
+
 	router := mux.NewRouter()
 
-	// 🔹 Создаём хендлеры с передачей БД и конфига
-	h := handlers.NewHandler(conn.Pool, cfg)
+	// 🔥 ПЕРЕДАЁМ S3 В HANDLER
+	h := handlers.NewHandler(conn.Pool, cfg, s3Client)
 
-	// 🔹 Применяем CORS middleware до регистрации маршрутов
 	router.Use(corsMiddleware)
 
-	// 🔹 Универсальный OPTIONS для всех путей
 	router.Methods(http.MethodOptions).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -70,7 +80,6 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	// 🔹 Регистрируем маршруты
 	router.HandleFunc("/", h.HomeHandler).Methods("GET")
 	router.HandleFunc("/teachers", h.GetAllTeachersHandler).Methods("GET")
 	router.HandleFunc("/teacher/{id}", h.GetTeacherByIDHandler).Methods("GET")
@@ -100,10 +109,12 @@ func main() {
 	router.HandleFunc("/createHomework", h.CreateHomeworkHandler).Methods("POST")
 	router.HandleFunc("/getHomeworks", h.GetHomeworks).Methods("GET")
 	router.HandleFunc("/tasks/{id}", h.GetHomeworkByID).Methods("GET")
-	// 🔹 Swagger
+	router.HandleFunc("/submissions", h.UploadSubmission).Methods("POST", "OPTIONS")
+	router.HandleFunc("/progress/{userId}", h.GetStudentProgressHandler).Methods("GET")
+	router.HandleFunc("/tasks/{taskId}/student/{userId}/files", h.GetStudentSubmissionFilesHandler).Methods("GET")
+	router.HandleFunc("/tasks/{taskId}/student/{userId}/files/{fileIndex}/download", h.DownloadStudentSubmissionFileHandler,).Methods("GET")
 	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
-	// 🔹 Запускаем сервер
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	log.Println("Сервер запущен на", addr)
 	log.Fatal(http.ListenAndServe(addr, router))
