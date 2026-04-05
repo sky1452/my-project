@@ -6,9 +6,14 @@ export function HomeworkInfo({
   userId,
   submissionData,
   submissionLoading,
+  scoreData,
+  scoreLoading,
   createAnswer,
   onCreateAnswer,
 }) {
+  const hasScore =
+    scoreData?.score !== null && scoreData?.score !== undefined;
+
   return (
     <div className="my-homework1">
       <div className="div01">{task.title}</div>
@@ -52,14 +57,8 @@ export function HomeworkInfo({
                 style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}
               >
                 <a
+                  className="file-link"
                   href={`http://localhost:8081/tasks/${taskId}/student/${userId}/files/${index}/download`}
-                  style={{
-                    color: "black",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    textDecoration: "none",
-                  }}
                 >
                   <FileText size={18} />
                   {file.file_name}
@@ -82,9 +81,15 @@ export function HomeworkInfo({
       <div className="div015">{task.updated_at}</div>
 
       <div className="div016">Состояние оценивания:</div>
-      <div className="div017">-</div>
+      <div className="div017">
+        {scoreLoading
+          ? "Загрузка..."
+          : scoreData?.score !== null && scoreData?.score !== undefined
+          ? `${scoreData.score} / ${task.max_score}`
+          : "-"}
+      </div>
 
-      {!createAnswer && (
+      {!hasScore && !createAnswer && (
         <div className="div018" onClick={onCreateAnswer}>
           Создать ответ
         </div>

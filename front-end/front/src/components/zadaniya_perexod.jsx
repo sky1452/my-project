@@ -1,133 +1,164 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
-import { CreateHomework } from './CreateHomework.jsx';
-import { ReceivedWorks } from './GetHomework.jsx';
-import { CreatedHomework } from './CreatedHomework.jsx';
+import { CreateHomework } from "./CreateHomework.jsx";
+import { ReceivedWorks } from "./GetHomework.jsx";
+import { CreatedHomework } from "./CreatedHomework.jsx";
+import { CheckHomework } from "./checkHomerk.jsx";
 
-export function HomeworkPage_id(){
-const [mode, setMode] = useState(null);
+export function HomeworkPage_id() {
+  const [mode, setMode] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-const [loading, setLoading] = useState(true);
-const user = JSON.parse(localStorage.getItem("user"));
-const userId = user?.userId;
-const { disciplineId } = useParams();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?.userId;
 
-const [discipline, setDiscipline] = useState(null);
-const [groups, setGroups] = useState([]);
-const [selectedGroup, setSelectedGroup] = useState(null);
+  const { disciplineId, group, homeworkId } = useParams();
+  const navigate = useNavigate();
 
-useEffect(() => {
+  const [discipline, setDiscipline] = useState(null);
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(
+    group ? decodeURIComponent(group) : null
+  );
 
-  setLoading(true);
+  useEffect(() => {
+    setLoading(true);
 
-  if (!userId){
-    setLoading(false);
-    return;
-  }
-
-  fetch(`http://localhost:8081/discipline/${disciplineId}`)
-    .then(res => res.json())
-    .then(data => {
-      setDiscipline(data.name);
+    if (!userId) {
       setLoading(false);
-    })
-    .catch(error => {
-      console.error("Ошибка при загрузке дисциплины:", error);
-    });
+      return;
+    }
 
-}, [disciplineId, userId]);
+    fetch(`http://localhost:8081/discipline/${disciplineId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setDiscipline(data.name);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Ошибка при загрузке дисциплины:", error);
+      });
+  }, [disciplineId, userId]);
 
-useEffect(() => {
+  useEffect(() => {
+    if (!userId || !disciplineId) {
+      setLoading(false);
+      return;
+    }
 
-  if (!userId || !disciplineId){
-    setLoading(false);
-    return;
-  }
+    fetch(`http://localhost:8081/mySchedule/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const filtered = data.filter(
+          (item) => item.disciplineId === parseInt(disciplineId)
+        );
 
-  fetch(`http://localhost:8081/mySchedule/${userId}`)
-    .then(res => res.json())
-    .then(data => {
+        const uniqueGroups = [...new Set(filtered.map((item) => item.groupName))];
+        const sortedGroups = uniqueGroups.sort((a, b) => a.localeCompare(b, "ru"));
 
-      const filtered = data.filter(
-        item => item.disciplineId === parseInt(disciplineId)
-      );
+        setGroups(sortedGroups);
+      })
+      .catch((err) => console.error("Ошибка загрузки групп:", err));
+  }, [userId, disciplineId]);
 
-      const uniqueGroups = [
-        ...new Set(filtered.map(item => item.groupName))
-      ];
+  useEffect(() => {
+    if (group) {
+      setSelectedGroup(decodeURIComponent(group));
+    }
+  }, [group]);
 
-      const Groups = uniqueGroups.sort((a,b)=>a.localeCompare(b,"ru"));
+  useEffect(() => {
+    if (homeworkId) {
+      setMode("received");
+    }
+  }, [homeworkId]);
 
-      setGroups(Groups);
+  const handleSelectGroup = (groupName) => {
+    setSelectedGroup(groupName);
+    setMode(null);
 
-    })
-    .catch(err => console.error("Ошибка загрузки групп:", err));
+    navigate(`/homework_teacher/${disciplineId}/${discipline}`);
+  };
 
-}, [userId, disciplineId]);
+  if (loading) return <p>Загрузка страницы дисциплины...</p>;
 
+  return (
+    <div className="progresst">
+      <div style={{ textAlign: "center" }}>Проверка заданий</div>
 
-if (loading) return <p>Загрузка страницы дисциплины...</p>;
+      <div className="course-header">Название курса: {discipline}</div>
 
-return (
+      <div className="data-grid">
+        <div className="grid-label">Выберите группу:</div>
 
-<div className="progresst">
-
-  <div style={{textAlign:"center"}}>
-    Проверка заданий
-  </div>
-
-  <div className="course-header">
-    Название курса: {discipline}
-  </div>
-
-  <div className="data-grid">
-
-    <div className="grid-label">
-      Выберите группу:
-    </div>
-
-    <div className="grid-content">
-      <div className="groups-container">
-        {groups.map(group => (
-          <div
-            key={group}
-            className="groups"
-            onClick={()=>setSelectedGroup(group)}
-          >
-            {group}
+        <div className="grid-content">
+          <div className="groups-container">
+            {groups.map((groupName) => (
+              <div
+                key={groupName}
+                className="groups"
+                onClick={() => handleSelectGroup(groupName)}
+              >
+                {groupName}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {selectedGroup && (
+          <>
+            <div className="grid-label">Выбранная группа: {selectedGroup}</div>
+
+            <div className="grid-content">
+              <div className="groups-container">
+                <div className="groups" onClick={() => setMode("create")}>
+                  Создать задание
+                </div>
+                <div className="groups" onClick={() => setMode("received")}>
+                  Полученные работы
+                </div>
+                <div className="groups" onClick={() => setMode("created")}>
+                  Созданные задания
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
+
+      {mode === "create" && (
+        <CreateHomework
+          disciplineId={disciplineId}
+          group={selectedGroup}
+          userId={userId}
+        />
+      )}
+
+      {mode === "received" && (
+        <>
+          <ReceivedWorks
+            disciplineId={disciplineId}
+            group={selectedGroup}
+            userId={userId}
+          />
+
+          <CheckHomework
+            disciplineId={disciplineId}
+            group={selectedGroup}
+            userId={userId}
+            homeworkId={homeworkId}
+          />
+        </>
+      )}
+
+      {mode === "created" && (
+        <CreatedHomework
+          disciplineId={disciplineId}
+          group={selectedGroup}
+          userId={userId}
+        />
+      )}
     </div>
-
-    {selectedGroup && (
-  <>
-    <div className="grid-label">
-      Выбранная группа: {selectedGroup}
-    </div>
-
-    <div className="grid-content">
-      <div className="groups-container">
-        <div className="groups" onClick={()=>setMode("create")}>
-          Создать задание
-        </div>
-        <div className="groups" onClick={()=>setMode("received")}>
-          Полученные работы
-        </div>
-        <div className="groups" onClick={()=>setMode("created")}>
-          Созданные задания
-        </div>
-      </div>
-    </div>
-  </>
-)}
-
-  </div>
-{mode === "create" &&(<CreateHomework disciplineId = {disciplineId} group = {selectedGroup} userId = {userId} />)}
-{mode === "received" &&(<ReceivedWorks disciplineId = {disciplineId} group = {selectedGroup} userId = {userId} />)}
-{mode === "created" &&(<CreatedHomework disciplineId = {disciplineId} group = {selectedGroup} userId = {userId} />)}
-</div>
-
-)
+  );
 }

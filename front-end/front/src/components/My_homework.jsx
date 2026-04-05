@@ -6,6 +6,8 @@ import {
   fetchDiscipline,
   submitHomework,
   fetchFileById,
+  fetchSubmissionScore,
+  updateHomeworkAnswer,
 } from "./api";
 import { HomeworkInfo } from "./HomeworkInfo";
 import { HomeworkAnswerForm } from "./HomeworkAnswerForm";
@@ -15,9 +17,11 @@ export function MyHomeworks() {
   const userId = user?.userId;
 
   const bottomRef = useRef(null);
+
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]);
   const [comment, setComment] = useState("");
-  const [createAnswer, setCreateAnswer] = useState(false);
+  const [formMode, setFormMode] = useState(null); // null | create | edit
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { disciplineId, taskId } = useParams();
@@ -26,6 +30,13 @@ export function MyHomeworks() {
   const { data: submissionData, isLoading: submissionLoading } = useQuery({
     queryKey: ["submission-files", taskId, userId],
     queryFn: () => fetchFileById(taskId, userId),
+    enabled: !!taskId && !!userId,
+    refetchInterval: 1000,
+  });
+
+  const { data: scoreData, isLoading: scoreLoading } = useQuery({
+    queryKey: ["submission-score", taskId, userId],
+    queryFn: () => fetchSubmissionScore(taskId, userId),
     enabled: !!taskId && !!userId,
     refetchInterval: 1000,
   });
@@ -53,32 +64,81 @@ export function MyHomeworks() {
   });
 
   useEffect(() => {
-    if (createAnswer) {
+    if (formMode) {
       bottomRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
     }
-  }, [createAnswer]);
+  }, [formMode]);
+
+  const openCreateForm = () => {
+    setFormMode("create");
+    setUploadedFiles([]);
+    setExistingFiles([]);
+    setComment("");
+  };
+
+  const openEditForm = () => {
+    setFormMode("edit");
+    setUploadedFiles([]);
+    setExistingFiles(submissionData?.files || []);
+    setComment(submissionData?.comment || "");
+  };
+
+  const handleCloseForm = () => {
+    setFormMode(null);
+    setUploadedFiles([]);
+    setExistingFiles([]);
+    setComment("");
+  };
+
+  const handleRemoveExistingFile = (fileIndex) => {
+    setExistingFiles((prev) =>
+      prev.filter((file) => file.file_index !== fileIndex) // Удаляем файл по уникальному индексу
+    );
+  };
 
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
 
-      await submitHomework(
-        taskId,
-        comment,
-        uploadedFiles,
-        userId,
-        disciplineId
-      );
+      if (formMode === "create") {
+        await submitHomework(
+          taskId,
+          comment,
+          uploadedFiles,
+          userId,
+          disciplineId
+        );
+      }
 
-      alert("Отправлено!");
-      setCreateAnswer(false);
+      if (formMode === "edit") {
+        await updateHomeworkAnswer({
+          taskId,
+          userId,
+          disciplineId,
+          comment,
+          newFiles: uploadedFiles,
+          keptFileIndexes: existingFiles.map((file) => file.file_index),
+        });
+      }
+
+      alert(formMode === "edit" ? "Изменения сохранены!" : "Отправлено!");
+
+      setFormMode(null);
       setComment("");
       setUploadedFiles([]);
+      setExistingFiles([]);
+
+      queryClient.invalidateQueries({
+        queryKey: ["submission-files", taskId, userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["submission-score", taskId, userId],
+      });
     } catch (e) {
-      alert("Ошибка отправки");
+      alert(formMode === "edit" ? "Ошибка сохранения" : "Ошибка отправки");
     } finally {
       setIsSubmitting(false);
     }
@@ -98,15 +158,22 @@ export function MyHomeworks() {
         userId={userId}
         submissionData={submissionData}
         submissionLoading={submissionLoading}
-        createAnswer={createAnswer}
-        onCreateAnswer={() => setCreateAnswer(true)}
+        scoreData={scoreData}
+        scoreLoading={scoreLoading}
+        createAnswer={!!formMode}
+        onCreateAnswer={openCreateForm}
+        onEditAnswer={openEditForm}
       />
 
-      {createAnswer && (
+      {formMode && (
         <HomeworkAnswerForm
           bottomRef={bottomRef}
           isSubmitting={isSubmitting}
-          onClose={() => setCreateAnswer(false)}
+          mode={formMode}
+          initialComment={comment}
+          existingFiles={existingFiles}
+          onRemoveExistingFile={handleRemoveExistingFile}
+          onClose={handleCloseForm}
           onFilesChange={setUploadedFiles}
           onCommentChange={setComment}
           onSubmit={handleSubmit}
