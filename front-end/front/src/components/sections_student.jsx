@@ -1,35 +1,42 @@
 import { Link } from 'react-router-dom';
+import { Home, ClipboardCheck, BarChart, Award, CalendarDays, Megaphone } from "lucide-react";
 
 const sections = [
   {
     name: 'Домашняя страница',
     id: 1,
     link: '/profile_student',
+    icon: <Home size={18} />,
   },
   {
     name: 'Успеваемость',
     id: 2,
     link: '/progress_student',
+    icon: <BarChart size={18} />,
   },
   {
     name: 'Расписание',
     id: 3,
     link: '/schedule_student',
+    icon: <CalendarDays size={18} />,
   },
   {
     name: 'Предстоящие события',
     id: 4,
     link: '/events_student',
+    icon: <Megaphone size={18} />,
   },
   {
     name: 'Мои задания',
     id: 5,
     link: '/homework_student',
+    icon: <ClipboardCheck size={18} />,
   },
   {
     name: 'Рейтинг',
     id: 6,
     link: '/rating_student',
+    icon: <Award size={18} />,
   },
 ];
 export function SectionsStudent() {
@@ -41,7 +48,7 @@ export function SectionsStudent() {
           className="sections"
           to={section.link}
         >
-          <p>{section.name}</p>
+          <p>{section.icon} {section.name}</p>
         </Link>
       ))}
     </div>

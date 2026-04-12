@@ -39,7 +39,7 @@ function EventsPage() {
 }
 
 function Rating_studentPage() {
-  return <h2>Рейтинг студента</h2>;
+  return <div className = "progresst"></div>;
 }
 function Events_studentPage() {
   return <h2>Предстоящие события</h2>;

@@ -79,7 +79,7 @@ export function HomeworkStudentPage_id() {
         Название курса: {disciplineData?.name}
       </div>
       <div className="course-header">
-        Ближайший дедлайн:{" "}
+        Ближайший крайний срок сдачи одной из работ:{" "}
         {nearestDeadline
           ? nearestDeadline.toLocaleString(DateTime.DATETIME_MED) // Форматируем дату в понятный формат
           : "Задания отсутствуют"}
