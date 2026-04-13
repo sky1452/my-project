@@ -20,7 +20,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const username = e.target.username.value;
+    const email = e.target.email.value;
     const password = e.target.password.value;
 
     if (!selectedRole) {
@@ -33,7 +33,7 @@ export default function Login() {
       const response = await fetch("http://localhost:8081/api/login", {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ username, password, role: selectedRole }),
+  body: JSON.stringify({ email, password, role: selectedRole }),
 });
  
       const data = await response.json();
@@ -45,7 +45,7 @@ export default function Login() {
         //сохраняем данные в localStorage
         localStorage.setItem('user', JSON.stringify({
           role: selectedRole,
-          username,
+         
           fullName: data.fullName,
           email: data.email,
           position: data.position,
@@ -87,8 +87,8 @@ export default function Login() {
               <label htmlFor="username"><h3>Логин</h3></label>
               <input
                 type="text"
-                id="username"
-                name="username"
+                id="email"
+                name="email"
                 placeholder="Ваш логин"
                 required
               />
