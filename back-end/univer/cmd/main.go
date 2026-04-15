@@ -119,7 +119,9 @@ func main() {
 	router.HandleFunc("/submissions/{submissionId}/score", h.UpdateSubmissionScoreHandler).Methods("PUT")
 	router.HandleFunc("/tasks/{taskId}/student/{userId}/score", h.GetStudentSubmissionScoreHandler).Methods("GET")
 	router.HandleFunc("/tasks/{taskId}/student/{userId}/submission", h.UpdateHomeworkAnswer).Methods("PUT")
-	
+	router.HandleFunc("/homeworks/{homeworkId}/teacher/{teacherId}", h.DeleteHomework).Methods("DELETE")
+	router.HandleFunc("/homeworks/{homeworkId}/teacher/{teacherId}", h.UpdateHomework).Methods("PUT")
+
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	log.Println("Сервер запущен на", addr)
 	log.Fatal(http.ListenAndServe(addr, router))
