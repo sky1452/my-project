@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Home, ClipboardCheck, BarChart, Award, CalendarDays, Megaphone, FileCheck, ClipboardList, BookOpen, NotebookPen, ChartColumn, FileSpreadsheet } from "lucide-react";
+import { Home,CalendarDays, Megaphone,  ClipboardList,  NotebookPen, ChartColumn } from "lucide-react";
 const sections = [
   {
     name: 'Домашняя страница',

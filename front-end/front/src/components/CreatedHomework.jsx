@@ -1,82 +1,126 @@
-import { useState, useEffect} from "react";
+import { useRef, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2, Pencil } from "lucide-react";
+import { getHomeworks, deleteHomework } from "./api";
+import { EditHomework } from "./EditHomework";
 
-export function CreatedHomework({disciplineId, group, userId}) {
-    const [loading, setLoading] = useState(true);
-    const [homeworks, setHomeworks] = useState([]);
+export function CreatedHomework({ disciplineId, group, userId }) {
+  const queryClient = useQueryClient();
+  const [editingHomework, setEditingHomework] = useState(null);
+  const tableRef = useRef(null);
 
-useEffect(() => {
-  fetch(`http://localhost:8081/getHomeworks?disciplineId=${disciplineId}&group=${group}&teacherId=${userId}`) //ф-ия получения массива созданных заданий по дисциплине, группе и преподу 
-    .then((response) => response.json())
-    .then((data) => {
+  const {
+    data: homeworks = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["homeworks", disciplineId, group, userId],
+    queryFn: () =>
+      getHomeworks({
+        disciplineId,
+        group,
+        teacherId: userId,
+      }),
+    enabled: Boolean(disciplineId && group && userId),
+  });
 
-            if (data.error) {
-        console.error("Server error:", data.error);
-        setHomeworks([]); // пустой массив
-        setLoading(false);
-        return;
-      }
-      data.forEach(hw => {
-            if (hw.created_at === hw.updated_at) {
-             hw.updated_at = "—";
-     } 
+  const deleteHomeworkMutation = useMutation({
+    mutationFn: ({ homeworkId, teacherId }) =>
+      deleteHomework({ homeworkId, teacherId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["homeworks", disciplineId, group, userId],
+      });
+    },
+  });
+
+  const handleDeleteHomework = (homeworkId) => {
+    const confirmed = window.confirm("Удалить это задание?");
+    if (!confirmed) return;
+
+    deleteHomeworkMutation.mutate({
+      homeworkId,
+      teacherId: userId,
     });
-      // Если сервер вернул массив
-      if (!Array.isArray(data)) {
-        console.warn("Unexpected data format:", data);
-        setHomeworks([]);
-        setLoading(false);
-        return;
-      }
-      setHomeworks(data);
-        setLoading(false);
-        if (data.length === 0) {
-          setHomeworks([]);
-        }
-    })
-    .catch((err) => console.error(err));
-}, [disciplineId, group, userId]);
+  };
 
-if (homeworks.length === 0) return <p>У вас пока нет созданных заданий в этой дисциплине и группе.</p>;
-if (loading) return <p>Загрузка ваших созданных заданий...</p>;
+  if (isLoading) {
+    return <p>Загрузка ваших созданных заданий...</p>;
+  }
 
-return(
-    
-<div >
+  if (isError) {
+    return <p>Ошибка при загрузке заданий: {error.message}</p>;
+  }
 
-<table className="createdhomework">
-  
-  <thead>
-    <tr>
-      <th>Название</th>
-      <th>Описание</th>
-      <th>Баллы</th>
-      <th>Создано</th>
-      <th>Обновлено</th>
-      <th>Дедлайн</th>
-      <th>Действия</th>
-    </tr>
-  </thead>
-  <tbody>
-    {homeworks.map((hw) => (
-         <tr key={hw.id}>
-              <td>{hw.title}</td>
-              <td>{hw.description}</td>
-              <td>{hw.max_score}</td>
-              <td>{hw.created_at}</td>
-              <td>{hw.updated_at}</td>
-              <td>{hw.deadline}</td>
-              <td>
-                <Pencil size={18} /> <Trash2 size={18} />
-              </td>
+  return (
+    <div>
+      {homeworks.length === 0 ? (
+        <p>У вас пока нет созданных заданий в этой дисциплине и группе.</p>
+      ) : (
+        <table ref={tableRef} className="createdhomework">
+          <thead>
+            <tr>
+              <th>Название</th>
+              <th>Описание</th>
+              <th>Баллы</th>
+              <th>Создано</th>
+              <th>Обновлено</th>
+              <th>Дедлайн</th>
+              <th>Действия</th>
             </tr>
-    ))}
+          </thead>
 
-  </tbody>
-</table>
+          <tbody>
+            {homeworks.map((hw) => (
+              <tr key={hw.id}>
+                <td>{hw.title}</td>
+                <td>{hw.description}</td>
+                <td>{hw.max_score}</td>
+                <td>{hw.created_at}</td>
+                <td>{hw.updated_at}</td>
+                <td>{hw.deadline}</td>
+                <td>
+                  <div className="actions">
+                    <Pencil
+                      size={18}
+                      onClick={() => setEditingHomework(hw)}
+                      className="edit"
+                    />
+                    <Trash2
+                      size={18}
+                      onClick={() => handleDeleteHomework(hw.id)}
+                      className="delete"
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-</div>
+      {deleteHomeworkMutation.isPending && <p>Удаление задания...</p>}
+      {deleteHomeworkMutation.isError && (
+        <p>Ошибка удаления: {deleteHomeworkMutation.error.message}</p>
+      )}
 
-);
-
+      {editingHomework && (
+        <EditHomework
+          homework={editingHomework}
+          teacherId={userId}
+          disciplineId={disciplineId}
+          group={group}
+          tableRef={tableRef}
+          onClose={() => setEditingHomework(null)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({
+              queryKey: ["homeworks", disciplineId, group, userId],
+            });
+            setEditingHomework(null);
+          }}
+        />
+      )}
+    </div>
+  );
 }

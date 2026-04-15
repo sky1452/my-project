@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Home, ClipboardCheck, BarChart, Award, CalendarDays, Megaphone } from "lucide-react";
+import { Home, ClipboardCheck, Award, CalendarDays, Megaphone, Trophy} from "lucide-react";
+
 
 const sections = [
   {
@@ -12,7 +13,7 @@ const sections = [
     name: 'Успеваемость',
     id: 2,
     link: '/progress_student',
-    icon: <BarChart size={18} />,
+    icon: <Award size={18} />,
   },
   {
     name: 'Расписание',
@@ -36,7 +37,7 @@ const sections = [
     name: 'Рейтинг',
     id: 6,
     link: '/rating_student',
-    icon: <Award size={18} />,
+    icon: <Trophy size={18} />,
   },
 ];
 export function SectionsStudent() {

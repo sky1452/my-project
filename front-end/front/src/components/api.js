@@ -135,3 +135,84 @@ export async function updateHomeworkAnswer({
 
   return res.json();
 }
+// api.js
+export async function getHomeworks({ disciplineId, group, teacherId }) {
+  const response = await fetch(
+    `http://localhost:8081/getHomeworks?disciplineId=${disciplineId}&group=${group}&teacherId=${teacherId}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+
+  if (!Array.isArray(data)) {
+    return [];
+  }
+
+  return data.map((hw) => ({
+    ...hw,
+    updated_at: hw.created_at === hw.updated_at ? "—" : hw.updated_at,
+  }));
+}
+export async function deleteHomework({ homeworkId, teacherId }) {
+  const response = await fetch(
+    `http://localhost:8081/homeworks/${homeworkId}/teacher/${teacherId}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.error || "Не удалось удалить задание");
+  }
+
+  return data;
+}
+export async function updateHomework({
+  homeworkId,
+  teacherId,
+  disciplineId,
+  group,
+  title,
+  description,
+  deadline,
+  maxScore,
+}) {
+  const payload = {
+    disciplineId: Number(disciplineId),
+    group,
+    title,
+    description,
+    deadline,
+    maxScore: Number(maxScore),
+  };
+
+  console.log("REQUEST BODY", JSON.stringify(payload));
+
+  const response = await fetch(
+    `http://localhost:8081/homeworks/${homeworkId}/teacher/${teacherId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.error || "Не удалось обновить задание");
+  }
+
+  return data;
+}
