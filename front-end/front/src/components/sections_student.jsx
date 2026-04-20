@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Home, ClipboardCheck, Award, CalendarDays, Megaphone, Trophy} from "lucide-react";
 
 
@@ -41,6 +41,13 @@ const sections = [
   },
 ];
 export function SectionsStudent() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const isActive = (sectionLink) => {
+    return currentPath === sectionLink || currentPath.startsWith(sectionLink + '/');
+  };
+
   return (
     <div className="sections-container">
       {sections.map((section) => (
@@ -48,6 +55,9 @@ export function SectionsStudent() {
           key={section.id}
           className="sections"
           to={section.link}
+          style={{
+            border: isActive(section.link) ? "1px solid #ccc" : "none",
+          }}
         >
           <p>{section.icon} {section.name}</p>
         </Link>
