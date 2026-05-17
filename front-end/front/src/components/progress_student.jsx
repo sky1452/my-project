@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import { API_URL } from "../config";
 export function ProgressPage_student() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);

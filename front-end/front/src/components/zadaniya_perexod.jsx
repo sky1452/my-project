@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
+import { API_URL } from "../config";
 import { CreateHomework } from "./CreateHomework.jsx";
 import { ReceivedWorks } from "./GetHomework.jsx";
 import { CreatedHomework } from "./CreatedHomework.jsx";

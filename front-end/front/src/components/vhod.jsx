@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { API_URL } from "../config";
+
 export default function Login() {
   // selectedRole теперь будет числом: 3 — студент, 2 — преподаватель
   const [selectedRole, setSelectedRole] = useState(null);
@@ -31,7 +33,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch("${API_URL}/api/login", {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role: selectedRole }),

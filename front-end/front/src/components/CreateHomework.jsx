@@ -27,7 +27,7 @@ export function CreateHomework({ disciplineId, group, userId }) {
         max_score: parseInt(maxScore, 10),
       };
       console.log("Отправляемые данные:", data);
-      fetch("${API_URL}/createHomework", {
+      fetch(`${API_URL}/createHomework`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

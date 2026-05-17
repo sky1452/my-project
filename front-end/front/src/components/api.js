@@ -33,7 +33,7 @@ export async function submitHomework(taskId, comment, files, userId, disciplineI
     formData.append("files", file);
   });
 
-  return fetch("${API_URL}/submissions", {
+  return fetch(`${API_URL}/submissions`, {
     method: "POST",
     body: formData,
   });

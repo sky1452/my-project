@@ -202,7 +202,7 @@ return (
   <div className="course-header">
     Ближайший дедлайн:{" "}
         {nearestDeadline
-    ? nearestDeadline.toLocaleString("ru-RU", {
+    ? nearestDeadline.toLocaleString("ru-RU`, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",

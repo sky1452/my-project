@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-
+import { API_URL } from "../config";
 export function Datap() {
   const [user, setUser] = useState(
     () => JSON.parse(localStorage.getItem("user")) || {},
@@ -136,7 +136,7 @@ export function Datap() {
     reader.onloadend = async () => {
       const base64 = reader.result.split(",")[1];
       try {
-        const response = await fetch("${API_URL}/api/update-avatar", {
+        const response = await fetch(`${API_URL}/api/update-avatar`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: user.fullName, avatar: base64 }),

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Day } from "./Day_student";
-
+import { API_URL } from "../config";
 export function SchedulePage_student() {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);

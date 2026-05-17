@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FileText, X, Check } from "lucide-react";
 import { updateSubmissionScore } from "./api";
+import { API_URL } from "../config";
 
 export function StudentSubmissionCard({
   studentWorkRef,

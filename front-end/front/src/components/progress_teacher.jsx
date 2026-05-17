@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-
+import { API_URL } from "../config";
 export function ProgressPage() {
   const [openGroup, setOpenGroup] = useState(false);
   const [openDiscipline, setOpenDiscipline] = useState(false);

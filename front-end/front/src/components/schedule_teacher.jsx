@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Day } from "./Day";
-
+import { API_URL } from "../config";
 export function SchedulePage() {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
