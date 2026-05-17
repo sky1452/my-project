@@ -1,5 +1,5 @@
 database:
-  dsn: "postgres://postgres:bububu@localhost:5432/nir"
+  dsn: "postgres://postgres:bububu@localhost:5432/nir?sslmode=disable"
 
 ids:
   teacher: 3
@@ -8,5 +8,3 @@ ids:
 
 server:
   port: 8081
-
-

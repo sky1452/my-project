@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
 
+	"github.com/joho/godotenv"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -41,8 +42,13 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func main() {
 	fmt.Println("Server started")
+	
+	err := godotenv.Load("../.env")
 
-	cfg, err := config.LoadConfig("internal/config/config.yaml")
+if err != nil {
+	log.Println("Warning: .env file not found")
+}
+	cfg, err := config.LoadConfig("../internal/config/config.yaml")
 	if err != nil {
 		log.Fatalf("Ошибка загрузки конфигурации: %v", err)
 	}
